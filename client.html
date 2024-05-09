@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Client</title>
+  <script src="https://cdn.socket.io/4.1.3/socket.io.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+  <div class="content">
+    <div class="server-list">
+      <h1>LEADER ELECTION</h1>
+      <p id="current-time"></p>
+      <ul id="serverList">
+      </ul>
+
+      <div class="input-container">
+        <div class="input-group">
+          <input type="text" id="clientValue" placeholder="Ingrese el ID del contenedor">
+          <button onclick="createContainer()" id="createClientBtn">
+            Crear Contenedor
+          </button>
+        </div>
+
+        <div id="serverStatus">
+          <div id="responseTableContainer">
+          <table id="responseTable">
+            <thead>
+              <tr>
+                <th>ROL</th>
+                <th>ID</th>
+                <th>NOMBRE</th>
+                <th>ESTADO</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>x</td>
+                <td>5</td>
+                <td>server1</td>
+                <td>activo</td>
+              </tr>
+              <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              
+            </tbody>
+          </table>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.onload = () => {
+      connectSocket();
+    };
+
+    const socket = io("http://192.168.248.1.103:5000/", {
+      transports: ["websocket"],
+      withCredentials: false,
+      extraHeaders: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST",
+        "Access-Control-Allow-Headers": "Content-Type",
+      },
+    });
+
+    socket.on("connect", () => {
+      console.log("Socket conectado:", socket);
+    });
+
+    socket.on("disconnect", () => {
+      console.log("Socket desconectado");
+    });
+
+    socket.on("servers", (servers) => {
+      console.log("Lista de servidores actualizada:", servers);
+      updateServerList(servers);
+    });
+
+    async function updateServerList(servers) {
+      const serverStatusContainer = document.getElementById("serverStatus");
+      // Puedes generar las filas y columnas dinámicamente aquí si prefieres datos dinámicos
+    }
+
+    async function createContainer() {
+  const inputValue = document.getElementById("clientValue").value;
+  if (inputValue.trim() === "") { 
+    alert("Por favor, llene el campo solicitado.");
+  } else if (!isNaN(inputValue)) {
+    try {
+      const response = await fetch(
+        "http://192.168.248.1:5000/startNewContainer",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const result = await response.text();
+      console.log(result);
+      
+      const serverName = 'NombreServidor'; // Aquí debes obtener el nombre real del servidor
+      
+      const emojiFirstCell = result === "true" ? "👑" : "🫡";
+      
+      const emojiLastCell = result === "true" ? "🟢" : "🔴";
+      
+      const tableBody = document.querySelector("#responseTable tbody");
+      const newRow = tableBody.insertRow();
+      newRow.innerHTML = `<td>${emojiFirstCell}</td><td>${inputValue}</td><td>${serverName}</td><td>${emojiLastCell}</td>`;
+    } catch (error) {
+      console.error(error);
+    }
+  } else {
+    alert("Por favor, ingrese un valor numérico en el campo solicitado.");
+  }
+}
+
+    function connectSocket() {
+      socket.emit("getServers"); 
+
+      socket.on("servers", (servers) => {
+        console.log("Lista de servidores recibida:", servers);
+        updateServerList(servers);
+      });
+    }
+  </script>
+</body>
+</html>
