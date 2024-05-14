@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Logs</title>
+  <link rel="stylesheet" type="text/css" href="style.css" />
+
+<body>
+  <div class="content">
+    <div class="server-list">
+      <h1>VIEW LOGS</h1>
+      <p id="current-time"></p>
+      <ul id="serverList">
+      </ul>
+
+      <div class="input-container">
+        <div class="input-group">
+          <button onclick="client()" id="retrunBtn">
+            Cliente
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="serverStatus">
+    <div id="responseTableContainer">
+    </div>
+  </div>
+  <script>
+    function client() {
+      window.location.href = "client.html";
+    }
+  </script>
+</body>
+
+</html>
